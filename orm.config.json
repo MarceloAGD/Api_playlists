@@ -1,0 +1,10 @@
+{
+    "type": "postgres",
+    "username": "postgres",
+    "password": "7211",
+    "host": "host.docker.internal",
+    "port": 5432,   
+    "database": "MovieDatabase",
+    "entities": ["dist/**/*.entity{.ts,.js}"],
+    "synchronize": true
+}

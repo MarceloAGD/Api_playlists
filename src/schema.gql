@@ -1,0 +1,95 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Users {
+  id: Int!
+  email: String!
+  name: String!
+  password: String!
+  playlists: [Playlist!]
+}
+
+type Playlist {
+  idPlaylist: Int!
+  name: String!
+  movies: [Movie!]!
+  usersId: Int!
+  users: Users!
+  user: Users!
+}
+
+type Actor {
+  id: Int
+  name: String
+  cast: [Cast!]
+}
+
+type Cast {
+  idCast: Int!
+  cast_id: Int
+  character: String
+  idActor: Int
+  nameActor: String
+  actor: Actor
+  movie: Movie
+}
+
+type Movie {
+  id: Int!
+  title: String!
+  poster_path: String
+  overview: String
+  playlists: [Playlist!]!
+  cast: [Cast!]
+}
+
+type Query {
+  users: [Users!]!
+  user(email: String!, password: String!): Users!
+  Movies: [Movie!]!
+  MovieId(id: Float!): Movie!
+  Actors: [Actor!]!
+  Actor(idActor: Float!): [Actor!]!
+  Casts: [Cast!]!
+  Cast(idMovie: Float!): [Cast!]!
+  Playlists: [Playlist!]!
+  Playlist(userId: Float!): [Playlist!]!
+}
+
+type Mutation {
+  createUser(userInput: CreateUserInput!): Users!
+  loadData: Boolean!
+  createPlaylist(playlistInput: CreatePlaylistInput!): Playlist!
+  addMoviePlaylist(playlistInput: MoviePlaylistInput!): Playlist!
+  removeMoviePlaylist(playlistInput: MoviePlaylistInput!): Boolean!
+  deletePlaylist(playlistInput: deletePlaylistInput!): Boolean!
+  updatePlaylist(playlistInput: updatePlaylistInput!): Boolean!
+}
+
+input CreateUserInput {
+  email: String!
+  name: String!
+  password: String!
+}
+
+input CreatePlaylistInput {
+  name: String!
+  usersId: Float!
+}
+
+input MoviePlaylistInput {
+  idPlaylist: Float!
+  id: Float!
+}
+
+input deletePlaylistInput {
+  idPlaylist: Float!
+  idUser: Float!
+}
+
+input updatePlaylistInput {
+  idPlaylist: Float!
+  name: String!
+  usersId: Float!
+}

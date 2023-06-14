@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  nestjs-app:
+    container_name: backend-nestjs
+    build: .
+    ports:
+      - 4000:4000
+
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
