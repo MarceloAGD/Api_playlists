@@ -4,13 +4,11 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { MoviesModule } from './movies/movies.module';
 import { PlaylistsModule } from './playlists/playlists.module';
-import { ConfigModule } from './config/config.module';
-import { ConfigService } from './config/config.service';
-import { Configuration } from './config/config.keys';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ActorsModule } from './actors/actors.module';
 import { CastsModule } from './casts/casts.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -18,15 +16,20 @@ import { CastsModule } from './casts/casts.module';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: '7211',
-      database: 'MovieDatabase',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        port: configService.get('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_DATABASE'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+      }),
+      inject:[ConfigService],
       
     }),
     UsersModule,
@@ -34,13 +37,12 @@ import { CastsModule } from './casts/casts.module';
     ActorsModule,
     CastsModule,
     PlaylistsModule,
-    ConfigModule,
   ],
 })
 export class AppModule {
   static port: number | string;
 
-  constructor(private readonly _configService: ConfigService ){
-    AppModule.port = this._configService.get(Configuration.PORT)
+  constructor(private readonly _configService: ConfigService){
+    AppModule.port = this._configService.get('PORT')
   }
 }
