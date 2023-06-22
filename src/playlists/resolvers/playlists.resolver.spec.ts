@@ -4,7 +4,7 @@ import { PlaylistsService } from '../services/playlists.service';
 import { CreatePlaylistInput } from '../dto/create-playlist.input';
 import * as update from '../dto/update-playlist.input';
 import { Playlist } from '../entities/playlist.entity';
-import { Users } from '../../users/entities/users.entity';
+import { Users } from '../entities/users.entity';
 import { deletePlaylistInput } from '../dto/delete-playlist.input';
 import { TypeOrmModule } from '@nestjs/typeorm';
 

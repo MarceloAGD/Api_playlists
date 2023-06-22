@@ -3,7 +3,7 @@ import { PlaylistsService } from '../services/playlists.service';
 import { CreatePlaylistInput } from '../dto/create-playlist.input';
 import * as update from '../dto/update-playlist.input';
 import { Playlist } from '../entities/playlist.entity';
-import { Users } from '../../users/entities/users.entity';
+import { Users } from '../entities/users.entity';
 import { deletePlaylistInput } from '../dto/delete-playlist.input';
 
 
@@ -31,9 +31,9 @@ export class PlaylistsResolver {
         return this.playlistService.getPlaylistByUser(userId);
     }
 
-    @ResolveField(() => Users)
-    user(@Parent() playlist: Playlist): Promise<Users>{
-        return this.playlistService.getUser(playlist.usersId)
+    @ResolveField((of) => Users)
+    user(@Parent() playlist: Playlist){
+        return { __typename:"Users", id: playlist.usersId}
     }
 
     @Mutation(returns => Boolean)
@@ -50,4 +50,5 @@ export class PlaylistsResolver {
     updatePlaylist(@Args('playlistInput') playlistInput: update.updatePlaylistInput): Promise<boolean>{
         return this.playlistService.updatePlaylist(playlistInput);
     }
+
 }

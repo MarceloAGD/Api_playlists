@@ -6,8 +6,8 @@ import { UsersService } from '../../users/services/users.service';
 import { PlaylistsService } from './playlists.service';
 import { Playlist } from '../entities/playlist.entity';
 import { CreatePlaylistInput } from '../dto/create-playlist.input';
-import { Users } from 'src/users/entities/users.entity';
-import { Movie } from 'src/movies/entities/movie.entity';
+import { Users } from 'src/playlists/entities/users.entity';
+import { Movie } from 'src/playlists/entities/movie.entity';
 
 describe('PlaylistsService', () => {
   let service: PlaylistsService;

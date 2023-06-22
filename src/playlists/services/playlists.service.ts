@@ -3,35 +3,35 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from '../entities/playlist.entity';
 import { Repository } from 'typeorm';
 import { CreatePlaylistInput } from '../dto/create-playlist.input';
-import { MoviesService } from '../../movies/services/movies.service';
-import { UsersService } from '../../users/services/users.service';
-import { Users } from '../../users/entities/users.entity';
+import { Users } from '../entities/users.entity';
 import * as update from '../dto/update-playlist.input';
 import { deletePlaylistInput } from '../dto/delete-playlist.input';
+import { Movie } from '../entities/movie.entity';
 
 @Injectable()
 export class PlaylistsService {
   constructor(
     @InjectRepository(Playlist)
     private playlistsRepository: Repository<Playlist>,
-    private moviesService: MoviesService,
-    private usersService: UsersService,
   ) {}
 
+  async forUsers(id: number){
+      return this.playlistsRepository.find({where: {usersId: id}});
+    }
+  async forMovies(id: number){
+    return this.playlistsRepository.find({where: {movies: {id: id}}});
+  }
+
   async findAll(): Promise<Playlist[]> {
-    return this.playlistsRepository.find({ relations: ['movies'] });
+    return this.playlistsRepository.find();
   }
 
   async getPlaylistByUser(usersId: number): Promise<Playlist[]> {
     return this.playlistsRepository.find({
       where: { usersId },
-      relations: ['movies'],
     });
   }
 
-  async getUser(userId: number): Promise<Users> {
-    return this.usersService.findOne(userId);
-  }
 
   async createPlaylist(playlist: CreatePlaylistInput): Promise<Playlist> {
     const newPlaylist = this.playlistsRepository.create(playlist)
@@ -43,9 +43,9 @@ export class PlaylistsService {
   ): Promise<Playlist> {
     const playlist = await this.playlistsRepository.findOne({
       where: { idPlaylist: update.idPlaylist },
-      relations: ['movies'],
     });
-    const movie = await this.moviesService.findOne(update.id);
+    const movie = new Movie
+    movie.id=update.id
 
     if (playlist.movies) {
       playlist.movies.push(movie);
@@ -61,8 +61,8 @@ export class PlaylistsService {
         where: { idPlaylist: remove.idPlaylist },
         relations: ['movies'],
       });
-      const movie = await this.moviesService.findOne(remove.id);
-
+      const movie = new Movie
+      movie.id=remove.id
       playlist.movies = playlist.movies.filter(
         (movieItem) => movieItem.id !== movie.id,
       );
