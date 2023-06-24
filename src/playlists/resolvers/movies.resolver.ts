@@ -10,6 +10,6 @@ export class MoviesResolver {
 
   @ResolveField(() => [Playlist])
   playlists(@Parent() movie: Movie): Promise<Playlist[]>{
-    return this.playlistService.forMovies(movie.id);
+    return this.playlistService.forMovies();
   }
 }

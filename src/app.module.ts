@@ -5,7 +5,6 @@ import { PlaylistsModule } from './playlists/playlists.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Users } from './playlists/entities/users.entity';
-import { Movie } from './playlists/entities/movie.entity';
 
 @Module({
   imports: [
@@ -15,7 +14,7 @@ import { Movie } from './playlists/entities/movie.entity';
         federation: 2,
       },
       buildSchemaOptions:{
-        orphanedTypes: [Users, Movie]
+        orphanedTypes: [Users]
       }
     }),
     ConfigModule.forRoot(),

@@ -1,7 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
 import { ObjectType, Field, Int, Directive} from '@nestjs/graphql';
-import {Movie} from './movie.entity';
 import { Users } from './users.entity';
+import { Movie } from './movie.entity';
 
 @Entity()
 @ObjectType()
@@ -16,18 +16,15 @@ export class Playlist{
     @Field()
     name: string;
 
-    /*@ManyToMany(() => Movie, movie => movie.playlists)
-    @JoinTable({
-        name: "playlist_detail"
-    })*/
-    @Field(() => [Movie])
-    movies: Movie[];
-
     @Column({type: "int"})
     @Field(() => Int)
     usersId: number;
 
     @Field(() => Users)
     users?: Users;
-
+    
+    @ManyToMany(() => Movie, movie => movie.playlists)
+    @JoinTable()
+    @Field(() => [Movie])
+    movies: Movie[];
 }

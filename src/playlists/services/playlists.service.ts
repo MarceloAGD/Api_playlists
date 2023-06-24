@@ -13,17 +13,27 @@ export class PlaylistsService {
   constructor(
     @InjectRepository(Playlist)
     private playlistsRepository: Repository<Playlist>,
+    @InjectRepository(Movie)
+    private movieRepository: Repository<Movie>,
+
   ) {}
 
   async forUsers(id: number){
       return this.playlistsRepository.find({where: {usersId: id}});
     }
-  async forMovies(id: number){
-    return this.playlistsRepository.find({where: {movies: {id: id}}});
+  async forMovies(){
+    return this.playlistsRepository.find();
   }
 
+  async findMovies(id: number){
+    return this.playlistsRepository.find({where:{idPlaylist: id}});
+
+  }
   async findAll(): Promise<Playlist[]> {
-    return this.playlistsRepository.find();
+    return this.playlistsRepository.find({relations: ['movies']});
+  }
+  async findOne(id: number): Promise<Playlist[]> {
+    return this.playlistsRepository.find({where:{idPlaylist: id}, relations: ['movies']});
   }
 
   async getPlaylistByUser(usersId: number): Promise<Playlist[]> {
@@ -43,10 +53,16 @@ export class PlaylistsService {
   ): Promise<Playlist> {
     const playlist = await this.playlistsRepository.findOne({
       where: { idPlaylist: update.idPlaylist },
+      relations: ['movies'],
     });
-    const movie = new Movie
-    movie.id=update.id
+    const movieExists = await this.movieRepository.findOne({where: {id: update.id}});
+    if(!movieExists){
+      const movie = new Movie();
+      movie.id = update.id
+      await this.movieRepository.save(movie);
+    }
 
+    const movie = await this.movieRepository.findOne({where: {id: update.id}});
     if (playlist.movies) {
       playlist.movies.push(movie);
       return this.playlistsRepository.save(playlist);
