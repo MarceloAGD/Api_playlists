@@ -38,7 +38,7 @@ export class PlaylistsService {
 
   async getPlaylistByUser(usersId: number): Promise<Playlist[]> {
     return this.playlistsRepository.find({
-      where: { usersId },
+      where: { usersId }, relations:['movies']
     });
   }
 

@@ -1,12 +1,29 @@
-version: '3'
-
+version: '3.8'
 services:
-  nestjs-app:
-    container_name: backend-nestjs
-    build: .
+  app:
+    container_name: playlist-microservice
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - 4000:4000
+      - ${PORT}:${PORT}
+    environment:
+      - PORT=${PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+    depends_on:
+      - db-playlist
+    restart: on-failure
 
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+  db-playlist:
+    image: postgres
+    ports:
+      - 5433:${DB_PORT}
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    restart: on-failure
