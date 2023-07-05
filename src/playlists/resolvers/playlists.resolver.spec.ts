@@ -7,6 +7,7 @@ import { Playlist } from '../entities/playlist.entity';
 import { Users } from '../entities/users.entity';
 import { deletePlaylistInput } from '../dto/delete-playlist.input';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Movie } from '../entities/movie.entity';
 
 describe('PlaylistsResolver', () => {
   let resolver: PlaylistsResolver;
@@ -31,7 +32,7 @@ describe('PlaylistsResolver', () => {
             addMoviePlaylist: jest.fn(),
             findAll: jest.fn(),
             getPlaylistByUser: jest.fn(),
-            getUser: jest.fn(),
+            forUsers: jest.fn(),
             removeMoviePlaylist: jest.fn(),
             deletePlaylist: jest.fn(),
             updatePlaylist: jest.fn(),
@@ -56,10 +57,6 @@ describe('PlaylistsResolver', () => {
         usersId: 1,
         users: {
           id: 1,
-          email: 'test@email.com',
-          name: 'Name',
-          password: '1234',
-          playlists: [],
         },
         movies: [],
       };
@@ -81,23 +78,10 @@ describe('PlaylistsResolver', () => {
       const playlist: Playlist = {
         idPlaylist: 1,
         name: 'Test Playlist',
-        movies: [
-          {
-            id: 1,
-            title: 'Test Movie',
-            poster_path: '',
-            overview: '',
-            cast: [],
-            playlists: [],
-          },
-        ],
+        movies: [],
         usersId: 1,
         users: {
           id: 1,
-          email: 'test@email.com',
-          name: 'Name',
-          password: '1234',
-          playlists: [],
         },
       };
       jest.spyOn(service, 'addMoviePlaylist').mockResolvedValue(playlist);
@@ -179,31 +163,6 @@ describe('PlaylistsResolver', () => {
     });
   });
 
-  describe('user', () => {
-    it('should call the service method with the correct input and return the result', async () => {
-      const user: Users = {
-        id: 1,
-        name: 'Test User',
-        email: 'email@email.com',
-        password: '1234',
-        playlists: [],
-      };
-      const playlist: Playlist = {
-        idPlaylist: 1,
-        name: 'Test Playlist',
-        usersId: 1,
-        movies: [],
-        users: user,
-      };
-
-      jest.spyOn(service, 'getUser').mockResolvedValue(user);
-
-      const result = await resolver.user(playlist);
-
-      expect(service.getUser).toHaveBeenCalledWith(playlist.usersId);
-      expect(result).toEqual(user);
-    });
-  });
   describe('removeMoviePlaylist', () => {
     it('should call the service method with the correct input and return the result', async () => {
       const playlistInput: update.MoviePlaylistInput = {

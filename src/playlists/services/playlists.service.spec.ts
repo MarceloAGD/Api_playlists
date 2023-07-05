@@ -1,19 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule, getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MoviesService } from '../../movies/services/movies.service';
-import { UsersService } from '../../users/services/users.service';
 import { PlaylistsService } from './playlists.service';
 import { Playlist } from '../entities/playlist.entity';
 import { CreatePlaylistInput } from '../dto/create-playlist.input';
 import { Users } from 'src/playlists/entities/users.entity';
-import { Movie } from 'src/playlists/entities/movie.entity';
+import { Movie } from '../entities/movie.entity';
+
 
 describe('PlaylistsService', () => {
   let service: PlaylistsService;
   let playlistsRepository: Repository<Playlist>;
-  let moviesService: MoviesService;
-  let usersService: UsersService;
+  let movieRepository: Repository<Movie>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,16 +30,8 @@ describe('PlaylistsService', () => {
           useClass: Repository,
         },
         {
-          provide: MoviesService,
-          useValue: {
-            findOne: jest.fn(),
-          },
-        },
-        {
-          provide: UsersService,
-          useValue: {
-            findOne: jest.fn(),
-          },
+          provide: getRepositoryToken(Movie),
+          useClass: Repository,
         },
       ],
     }).compile();
@@ -50,8 +40,6 @@ describe('PlaylistsService', () => {
     playlistsRepository = module.get<Repository<Playlist>>(
       getRepositoryToken(Playlist),
     );
-    moviesService = module.get<MoviesService>(MoviesService);
-    usersService = module.get<UsersService>(UsersService);
   });
 
   describe('findAll', () => {
@@ -63,10 +51,6 @@ describe('PlaylistsService', () => {
           usersId: 1,
           users: {
             id: 1,
-            email: 'test@email.com',
-            name: 'Name',
-            password: '1234',
-            playlists: [],
           },
           movies: [],
         },
@@ -76,10 +60,6 @@ describe('PlaylistsService', () => {
           usersId: 1,
           users: {
             id: 2,
-            email: 'test2@email.com',
-            name: 'Name2',
-            password: '1234',
-            playlists: [],
           },
           movies: [],
         },
@@ -102,10 +82,6 @@ describe('PlaylistsService', () => {
           usersId: 1,
           users: {
             id: 1,
-            email: 'test@email.com',
-            name: 'Name',
-            password: '1234',
-            playlists: [],
           },
           movies: [],
         },
@@ -115,10 +91,6 @@ describe('PlaylistsService', () => {
           usersId: 1,
           users: {
             id: 2,
-            email: 'test2@email.com',
-            name: 'Name2',
-            password: '1234',
-            playlists: [],
           },
           movies: [],
         },
@@ -131,23 +103,6 @@ describe('PlaylistsService', () => {
     });
   });
 
-  describe('getUser', () => {
-    it('should return a user for a given user ID', async () => {
-      const userId = 1;
-      const user: Users = {
-        id: 2,
-        email: 'test2@email.com',
-        name: 'Name2',
-        password: '1234',
-        playlists: [],
-      };
-      jest.spyOn(usersService, 'findOne').mockResolvedValue(user);
-
-      const result = await service.getUser(userId);
-
-      expect(result).toEqual(user);
-    });
-  });
 
   describe('createPlaylist', () => {
     it('should create a new playlist', async () => {
@@ -161,10 +116,6 @@ describe('PlaylistsService', () => {
         usersId: playlist.usersId,
         users: {
           id: 1,
-          email: 'test@email.com',
-          name: 'Name',
-          password: '1234',
-          playlists: [],
         },
         movies: [],
       };
@@ -186,10 +137,6 @@ describe('PlaylistsService', () => {
         usersId: 1,
         users: {
           id: 1,
-          email: 'test@email.com',
-          name: 'Name',
-          password: '1234',
-          playlists: [],
         },
         movies: [],
       };
@@ -202,7 +149,6 @@ describe('PlaylistsService', () => {
         playlists: [],
       };
       jest.spyOn(playlistsRepository, 'findOne').mockResolvedValue(playlist);
-      jest.spyOn(moviesService, 'findOne').mockResolvedValue(movie);
       jest.spyOn(playlistsRepository, 'save').mockResolvedValue(playlist);
     });
   });
@@ -213,11 +159,7 @@ describe('PlaylistsService', () => {
       const idMovie = 1;
       const movie: Movie = {
         id: idMovie,
-        title: 'Test Movie',
-        poster_path: '',
-        overview: '',
-        cast: [],
-        playlists: [],
+        playlists:[]
       };
       const playlist: Playlist = {
         idPlaylist: idPlaylist,
@@ -225,24 +167,10 @@ describe('PlaylistsService', () => {
         usersId: 1,
         users: {
           id: 1,
-          email: 'test@email.com',
-          name: 'Name',
-          password: '1234',
-          playlists: [],
         },
         movies: [movie],
       };
       jest.spyOn(playlistsRepository, 'findOne').mockResolvedValue(playlist);
-      jest
-        .spyOn(moviesService, 'findOne')
-        .mockResolvedValue({
-          id: idMovie,
-          title: 'Test Movie',
-          poster_path: '',
-          overview: '',
-          cast: [],
-          playlists: [],
-        });
       jest.spyOn(playlistsRepository, 'save').mockResolvedValue(playlist);
 
       const result = await service.removeMoviePlaylist({
@@ -256,7 +184,6 @@ describe('PlaylistsService', () => {
         where: { idPlaylist },
         relations: ['movies'],
       });
-      expect(moviesService.findOne).toHaveBeenCalledWith(idMovie);
       expect(playlistsRepository.save).toHaveBeenCalledWith({
         idPlaylist: idPlaylist,
         name: 'Test Playlist',
@@ -264,10 +191,6 @@ describe('PlaylistsService', () => {
         movies: [],
         users: {
           id: 1,
-          email: 'test@email.com',
-          name: 'Name',
-          password: '1234',
-          playlists: [],
         },
       });
     });
@@ -283,18 +206,11 @@ describe('PlaylistsService', () => {
         usersId: 1,
         users: {
           id: 1,
-          email: 'test@email.com',
-          name: 'Name',
-          password: '1234',
-          playlists: [],
+
         },
         movies: [
           {
             id: 1,
-            title: 'Test Movie',
-            poster_path: '',
-            overview: '',
-            cast: [],
             playlists: [],
           },
         ],
